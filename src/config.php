@@ -5,8 +5,8 @@ define('DB_USER', 'root');
 define('DB_PASS', 'P@ssw0rd@r00t');
 define('DB_CHARSET', 'utf8mb4');
 
-define('CF_SITE_KEY', '1x00000000000000000000AA');
-define('CF_SECRET_KEY', '1x0000000000000000000000000000000AA');
+define('CF_SITE_KEY', '0x4AAAAAACYTiBuLgkyGB7q8');
+define('CF_SECRET_KEY', '0x4AAAAAACYTiD3TFmSUAotsvQ3OOVQbj7Q');
 
 define('APP_NAME', 'Mlaas Price Quotation System');
 define('BASE_URL', 'http://localhost/020326/');
