@@ -9,7 +9,7 @@ define('CF_SITE_KEY', '0x4AAAAAACYTiBuLgkyGB7q8');
 define('CF_SECRET_KEY', '0x4AAAAAACYTiD3TFmSUAotsvQ3OOVQbj7Q');
 
 define('APP_NAME', 'Mlaas Price Quotation System');
-define('BASE_URL', 'http://localhost/020326/');
+define('BASE_URL', 'http://localhost/pqms/');
 
 date_default_timezone_set('Asia/Manila'); 
 

@@ -36,7 +36,7 @@
     private function verifyCaptcha($response) {
         if ($_SERVER['REMOTE_ADDR'] === '127.0.0.1') return true;
 
-        $secret = "1x0000000000000000000000000000000AA";
+        $secret = "0x4AAAAAACYTiD3TFmSUAotsvQ3OOVQbj7Q";
         $verifyUrl = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
         $ch = curl_init($verifyUrl);
