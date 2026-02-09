@@ -14,21 +14,19 @@
         }
 
         $user = $this->userModel->getByEmail($email);
-        echo "<script>alert('$user');</script>";
-        if (!$user) {
-            return ['success' => false, 'message' => 'Invalid credentials.'];
-        }
 
-        if (!password_verify($password, $user['password_hash'])) {
+        if (!$user || !password_verify($password, $user['password_hash'])) {
             return ['success' => false, 'message' => 'Invalid credentials.'];
         }
 
         $this->createSession($user);
 
-        $this->auditModel->log($user['user_id'], 'AUTH_LOGIN', $user['user_id'], [
-            'ip' => $_SERVER['REMOTE_ADDR'],
-            'user_agent' => $_SERVER['HTTP_USER_AGENT']
-        ]);
+        $this->auditModel->log(
+            $user['user_id'], 
+            'AUTH_LOGIN', 
+            $user['user_id'], 
+            "Login via Web (UA: " . $_SERVER['HTTP_USER_AGENT'] . ")"
+        );
 
         return ['success' => true, 'user' => $user];
     }
@@ -67,8 +65,22 @@
     }
 
     public function logout($userId) {
-        $this->auditModel->log($userId, 'AUTH_LOGOUT', $userId);
-        session_start();
+        $this->auditModel->log($userId, 'AUTH_LOGOUT', $userId, "User {$userId} initiated logout");
+
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $_SESSION = [];
+
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
+
         session_destroy();
     }
 }

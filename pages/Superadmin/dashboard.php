@@ -1,9 +1,9 @@
 <?php
-// --- 1. SETUP & SECURITY ---
 require_once '../../src/config.php'; // Adjust path if needed
+require_once '../../src/Models/BaseModel.php';
+require_once '../../src/Models/AuditModel.php';
 session_start();
 
-// Session Guard: Kick out if not logged in or not Admin
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Superadmin') {
     header("Location: ../login.php");
     exit;
@@ -11,28 +11,19 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Superadmin') 
 
 $userName = $_SESSION['first_name'] ?? 'Superadmin';
 
-// --- 2. DUMMY DATA (Replace these with your Model calls later) ---
+$auditModel = new AuditModel();
 
-// KPI Cards Data
 $stats = [
-    'total_sales' => 1250000.50,
+    'total_sales' => 1250.50,
     'pending_quotes' => 14,
     'active_suppliers' => 48,
     'low_stock' => 5
 ];
 
-// Chart Data (Last 6 Months)
 $chartLabels = json_encode(['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb']);
 $chartData   = json_encode([450000, 520000, 480000, 750000, 620000, 1250000]);
 
-// Audit Logs Dummy Data
-$auditLogs = [
-    ['user' => 'Mark Sales', 'action' => 'CREATE_QUOTE', 'target' => 'Q-2026-001', 'time' => '10 mins ago', 'badge' => 'success'],
-    ['user' => 'Jane Doe', 'action' => 'LOGIN', 'target' => 'System', 'time' => '25 mins ago', 'badge' => 'primary'],
-    ['user' => 'Admin', 'action' => 'UPDATE_SETTINGS', 'target' => 'Tax Rate', 'time' => '1 hour ago', 'badge' => 'warning'],
-    ['user' => 'John Stock', 'action' => 'DELETE_PRODUCT', 'target' => 'Old Monitor', 'time' => '3 hours ago', 'badge' => 'danger'],
-    ['user' => 'Mark Sales', 'action' => 'SEND_EMAIL', 'target' => 'Client: ACME', 'time' => '5 hours ago', 'badge' => 'info']
-];
+$auditLogs = $auditModel->getLogs( 5);
 ?>
 
 <!DOCTYPE html>
@@ -196,10 +187,10 @@ $auditLogs = [
                                 <td class="ps-4 fw-bold"><?php echo $log['user']; ?></td>
                                 <td>
                                     <span class="badge bg-<?php echo $log['badge']; ?> bg-opacity-10 text-<?php echo $log['badge']; ?> px-3 py-2 rounded-pill">
-                                        <?php echo $log['action']; ?>
+                                        <?php echo $log['event_code']; ?>
                                     </span>
                                 </td>
-                                <td class="text-muted"><?php echo $log['target']; ?></td>
+                                <td class="text-muted"><?php echo $log['description']; ?></td>
                                 <td class="text-secondary small"><?php echo $log['time']; ?></td>
                             </tr>
                             <?php endforeach; ?>
