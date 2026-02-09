@@ -1,22 +1,25 @@
 <?php
-// processes/user_process.php
 require_once '../config.php';
 require_once '../Models/BaseModel.php';
 require_once '../Models/UserModel.php';
+require_once '../Models/AuditModel.php'; 
+
 session_start();
 
 header('Content-Type: application/json');
 
-// 1. Security Guard
+// Security Guard
 if (($_SESSION['role'] ?? '') !== 'Superadmin') {
     echo json_encode(['success' => false, 'message' => 'Unauthorized Access']);
     exit;
 }
 
 $userModel = new UserModel();
+$auditModel = new AuditModel(); 
+
 $action = $_GET['action'] ?? '';
 
-// 2. Handle GET (Fetch Data)
+// Handle GET (Fetch Data)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'fetch') {
     try {
         $users = $userModel->getAllUsers();
@@ -27,17 +30,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'fetch') {
     exit;
 }
 
-// 3. Handle POST (Save/Delete)
+// Handle POST (Save/Delete)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
+    $currentUserId = $_SESSION['user_id']; // The Actor (Superadmin)
 
     if ($action === 'delete') {
-        if ($input['id'] == $_SESSION['user_id']) {
+        if ($input['id'] == $currentUserId) {
             echo json_encode(['success' => false, 'message' => 'You cannot delete yourself.']);
             exit;
         }
         
         if ($userModel->deleteUser($input['id'])) {
+            $auditModel->log(
+                $currentUserId, 
+                'USER_DELETE', 
+                $input['id'], 
+                "Deleted user account"
+            );
+
             echo json_encode(['success' => true, 'message' => 'User deleted successfully.']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to delete user.']);
@@ -45,13 +56,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // --- SAVE ACTION (CREATE or UPDATE) ---
     if ($action === 'save') {
-        // Pass the entire input array to the Model to handle validation & logic
+        // Determine if this is a Create or Update BEFORE saving
+        $isUpdate = !empty($input['id']);
+        $targetEmail = $input['email'] ?? 'Unknown';
         $result = $userModel->saveUser($input);
+        if ($result['success']) {
+            // 3b. LOG SAVE
+            if ($isUpdate) {
+                // UPDATE
+                $auditModel->log(
+                    $currentUserId, 
+                    'USER_UPDATE', 
+                    $input['id'], 
+                    "Updated profile details for " . $targetEmail
+                );
+            } else {
+                $newTargetId = $result['insert_id'] ?? null; 
+
+                $auditModel->log(
+                    $currentUserId, 
+                    'USER_CREATE', 
+                    $input['id'] ?? $newTargetId, 
+                    "Created new user account for " . $targetEmail
+                );
+            }
+        }
+
         echo json_encode($result);
         exit;
     }
 }
 
-// Default response if no action matched
 echo json_encode(['success' => false, 'message' => 'Invalid action']);

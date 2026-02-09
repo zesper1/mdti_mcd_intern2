@@ -63,7 +63,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Superadmin') 
             </div>
             <div class="modal-body">
                 <form id="userForm">
-                    <input type="hidden" id="userId">
+                    <input type="text" id="userId" hidden>
                     
                     <div class="mb-3">
                         <label>First Name</label>
