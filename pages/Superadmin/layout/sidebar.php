@@ -16,21 +16,23 @@
 <nav class="sidebar">
     <div class="sidebar-brand" style="height: var(--top-navbar-height); display: flex; align-items: center; justify-content: center; color: white; border-bottom: 1px solid rgba(255,255,255,0.1);">
         <i class="fas fa-shield-alt fa-lg"></i>
-        <span class="sidebar-text fw-bold fs-5"><?php echo APP_NAME; ?></span>
+        <span class="sidebar-text fw-bold fs-5"><?php echo defined('APP_NAME') ? APP_NAME : 'Admin'; ?></span>
     </div>
 
     <ul class="nav nav-pills flex-column mb-auto mt-3">
         <li class="nav-item">
-            <a href="/pages/Superadmin/dashboard.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
+            <a href="<?php echo BASE_URL; ?>pages/Superadmin/dashboard.php" 
+            class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
                 <i class="fas fa-tachometer-alt"></i>
                 <span class="sidebar-text">Dashboard</span>
             </a>
         </li>
         <li class="nav-item">
-            <a href="/pages/Superadmin/forms/catalog.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'catalog.php' ? 'active' : ''; ?>">
+            <a href="<?php echo BASE_URL; ?>pages/Superadmin/forms/catalog.php"
+            class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'catalog.php' ? 'active' : ''; ?>">
                 <i class="fas fa-book"></i>
                 <span class="sidebar-text">Catalogs</span>
             </a>
         </li>
-        </ul>
+    </ul>
 </nav>
